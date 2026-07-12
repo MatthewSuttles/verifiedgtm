@@ -1,0 +1,6 @@
+# internal docs and prospecting data stay out of the public deploy repo
+BRIEF.md
+README.md
+REVIEW-*.md
+gtm/
+.DS_Store

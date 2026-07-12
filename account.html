@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Area — Verified GTM Playbooks</title>
+  <meta name="description" content="Sign in to access your GTM package.">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+  <script src="marked.min.js"></script>
+</head>
+<body class="app">
+  <header class="hero">
+    <h1>Customer Area</h1>
+    <p>Access your GTM package.</p>
+  </header>
+
+  <main>
+    <div id="auth-view">
+      <div id="tab-bar" style="margin-bottom: 1.5rem;">
+        <a href="#" id="tab-login">Log in</a>
+        <span style="color: var(--text-secondary);"> | </span>
+        <a href="#" id="tab-signup">Create account</a>
+      </div>
+
+      <div id="login-form-wrapper">
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required>
+          </div>
+          <div id="login-error" style="color: #cc4444; margin-bottom: 1rem; display: none;"></div>
+          <div class="form-group">
+            <button type="submit" id="login-btn">Log in</button>
+          </div>
+          <p style="text-align: center; font-size: 0.9rem;">
+            <a href="#" id="forgot-password-link">Forgot password?</a>
+          </p>
+        </form>
+      </div>
+
+      <div id="signup-form-wrapper" style="display: none;">
+        <form id="signup-form">
+          <div class="form-group">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" required>
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" required minlength="6">
+          </div>
+          <div id="signup-error" style="color: #cc4444; margin-bottom: 1rem; display: none;"></div>
+          <div class="form-group">
+            <button type="submit" id="signup-btn">Create account</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="forgot-form-wrapper" style="display: none;">
+        <form id="forgot-form">
+          <div class="form-group">
+            <label for="forgot-email">Email</label>
+            <input type="email" id="forgot-email" required>
+          </div>
+          <div id="forgot-error" style="color: #cc4444; margin-bottom: 1rem; display: none;"></div>
+          <div class="form-group">
+            <button type="submit" id="forgot-btn">Send reset link</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="reset-form-wrapper" style="display: none;">
+        <form id="reset-form">
+          <p style="margin-bottom: 1rem;">Set your new password.</p>
+          <div class="form-group">
+            <label for="reset-password">New password</label>
+            <input type="password" id="reset-password" required minlength="6">
+          </div>
+          <div id="reset-error" style="color: #cc4444; margin-bottom: 1rem; display: none;"></div>
+          <div class="form-group">
+            <button type="submit" id="reset-btn">Set password</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="auth-success" style="display: none; text-align: center; padding: 2rem 0;">
+        <p id="auth-success-text"></p>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Already have an account? <a href="#" id="back-to-login">Log in</a></p>
+      </div>
+
+      <div id="auth-note" style="display: none; text-align: center; padding: 1rem; background: var(--code-bg); border-radius: 6px; margin-bottom: 1rem;">
+        <p id="auth-note-text" style="margin: 0;"></p>
+      </div>
+    </div>
+
+    <div id="payment-view" style="display: none; text-align: center; padding: 2rem 0;">
+      <h2>One payment, $<span id="payment-price"></span>.</h2>
+      <p style="margin: 1rem 0;">After checkout you will be brought back here to fill your intake form.</p>
+      <a href="#" id="pay-button" class="cta-button">Pay now</a>
+      <p style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+        Already paid? Email <a href="#" id="paid-contact-email"></a>
+      </p>
+    </div>
+
+    <div id="pending-view" style="display: none; text-align: center; padding: 2rem 0;">
+      <h2>Payment received, pending confirmation.</h2>
+      <p style="margin: 1rem 0;">We will confirm your payment shortly. Once confirmed, you will fill your intake form and the 48h clock starts there.</p>
+      <p>Questions? <a href="#" id="pending-contact-email"></a></p>
+    </div>
+
+    <div id="files-view" style="display: none;">
+      <p>Signed in as <strong id="user-email"></strong>. <a href="#" id="sign-out-link">Sign out</a></p>
+      <hr>
+      <div id="files-loading">
+        <p>Loading your files...</p>
+      </div>
+      <div id="files-empty" style="display: none;">
+        <p>No files yet. Your package appears here within 48 hours of your intake form. Questions? <a href="#" id="empty-contact-email"></a></p>
+      </div>
+      <div id="files-content" style="display: none;">
+        <nav style="margin-bottom: 2rem;">
+          <a href="#playbook">Prospecting Playbook</a> |
+          <a href="#swipe">Swipe File</a> |
+          <a href="#prospects">Prospect Sheet</a>
+        </nav>
+        <section id="playbook-section" class="doc-section">
+          <h2>Prospecting Playbook</h2>
+          <div class="doc-content" id="playbook-content"></div>
+          <div class="download-bar">
+            <a href="#" id="download-playbook">Download PROSPECTING-PLAYBOOK.md</a>
+          </div>
+        </section>
+        <section id="swipe-section" class="doc-section">
+          <h2>Swipe File</h2>
+          <div class="doc-content" id="swipe-content"></div>
+          <div class="download-bar">
+            <a href="#" id="download-swipe">Download SWIPE-FILE.md</a>
+          </div>
+        </section>
+        <section id="prospects-section" class="doc-section">
+          <h2>Prospect Sheet</h2>
+          <div class="doc-content" id="prospects-content"></div>
+          <div class="download-bar">
+            <a href="#" id="download-prospects">Download PROSPECTS.md</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Questions? <a href="#" id="footer-email"></a></p>
+  </footer>
+
+  <script>
+    var token = sessionStorage.getItem('supabase_token');
+    var userId = sessionStorage.getItem('supabase_user_id');
+    var userEmail = sessionStorage.getItem('supabase_email');
+
+    var authView = document.getElementById('auth-view');
+    var paymentView = document.getElementById('payment-view');
+    var pendingView = document.getElementById('pending-view');
+    var filesView = document.getElementById('files-view');
+
+    document.getElementById('footer-email').href = 'mailto:' + CONFIG.contactEmail;
+    document.getElementById('footer-email').textContent = CONFIG.contactEmail;
+    document.getElementById('paid-contact-email').href = 'mailto:' + CONFIG.contactEmail;
+    document.getElementById('paid-contact-email').textContent = CONFIG.contactEmail;
+    document.getElementById('pending-contact-email').href = 'mailto:' + CONFIG.contactEmail;
+    document.getElementById('pending-contact-email').textContent = CONFIG.contactEmail;
+    document.getElementById('empty-contact-email').href = 'mailto:' + CONFIG.contactEmail;
+    document.getElementById('empty-contact-email').textContent = CONFIG.contactEmail;
+
+    function decodeJwt(t) {
+      var b64 = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      return JSON.parse(atob(b64));
+    }
+
+    function parseHashParams() {
+      var hash = location.hash.substring(1);
+      var params = {};
+      hash.split('&').forEach(function(part) {
+        var pair = part.split('=');
+        params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+      });
+      return params;
+    }
+
+    function showView(view) {
+      authView.style.display = 'none';
+      paymentView.style.display = 'none';
+      pendingView.style.display = 'none';
+      filesView.style.display = 'none';
+      if (view) view.style.display = 'block';
+    }
+
+    function showAuth(tab) {
+      showView(authView);
+      authView.style.display = 'block';
+      document.getElementById('auth-success').style.display = 'none';
+      document.getElementById('auth-note').style.display = 'none';
+      document.getElementById('login-form-wrapper').style.display = 'none';
+      document.getElementById('signup-form-wrapper').style.display = 'none';
+      document.getElementById('forgot-form-wrapper').style.display = 'none';
+      document.getElementById('reset-form-wrapper').style.display = 'none';
+      document.getElementById('tab-bar').style.display = 'flex';
+      if (tab === 'login') {
+        document.getElementById('login-form-wrapper').style.display = 'block';
+        document.getElementById('tab-login').style.fontWeight = 'bold';
+        document.getElementById('tab-signup').style.fontWeight = 'normal';
+      } else if (tab === 'signup') {
+        document.getElementById('signup-form-wrapper').style.display = 'block';
+        document.getElementById('tab-login').style.fontWeight = 'normal';
+        document.getElementById('tab-signup').style.fontWeight = 'bold';
+      }
+    }
+
+    function handleHashToken() {
+      var params = parseHashParams();
+      if (!params.access_token) return false;
+
+      token = params.access_token;
+      var payload = decodeJwt(token);
+      userId = payload.sub;
+      userEmail = payload.email;
+
+      sessionStorage.setItem('supabase_token', token);
+      sessionStorage.setItem('supabase_user_id', userId);
+      sessionStorage.setItem('supabase_email', userEmail);
+
+      history.replaceState(null, '', location.pathname + location.search);
+
+      if (params.type === 'recovery') {
+        sessionStorage.setItem('supabase_recovery_token', token);
+        showView(authView);
+        document.getElementById('tab-bar').style.display = 'none';
+        document.getElementById('login-form-wrapper').style.display = 'none';
+        document.getElementById('signup-form-wrapper').style.display = 'none';
+        document.getElementById('forgot-form-wrapper').style.display = 'none';
+        document.getElementById('reset-form-wrapper').style.display = 'block';
+        return 'recovery';
+      }
+
+      return 'signed-in';
+    }
+
+    // ponytail: ?paid=1 is stashed so a claim survives logging in later or
+    // on another device; the PATCH must land before the profile is read.
+    function stashPaidRedirect() {
+      var params = new URLSearchParams(location.search);
+      if (params.get('paid') === '1') {
+        sessionStorage.setItem('pending_paid_claim', '1');
+        history.replaceState(null, '', location.pathname);
+      }
+    }
+
+    function claimPaidIfNeeded() {
+      if (sessionStorage.getItem('pending_paid_claim') !== '1' || !token || !userId) {
+        return Promise.resolve();
+      }
+      return fetch(CONFIG.supabaseUrl + '/rest/v1/profiles?id=eq.' + userId, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.supabaseAnonKey,
+          'Authorization': 'Bearer ' + token,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({claimed_paid: true})
+      }).then(function(res) {
+        if (res.ok) sessionStorage.removeItem('pending_paid_claim');
+      }).catch(function() {});
+    }
+
+    function resolveAndShow() {
+      if (!token || !userId) {
+        showView(authView);
+        showAuth('login');
+        return;
+      }
+
+      fetch(CONFIG.supabaseUrl + '/rest/v1/profiles?select=paid,claimed_paid&id=eq.' + userId, {
+        headers: {
+          'apikey': CONFIG.supabaseAnonKey,
+          'Authorization': 'Bearer ' + token
+        }
+      }).then(function(res) {
+        if (res.status === 401) {
+          sessionStorage.removeItem('supabase_token');
+          sessionStorage.removeItem('supabase_user_id');
+          sessionStorage.removeItem('supabase_email');
+          showView(authView);
+          showAuth('login');
+          return;
+        }
+        if (!res.ok) throw new Error('Failed to load profile');
+        return res.json();
+      }).then(function(profiles) {
+        if (!profiles || profiles.length === 0) {
+          showPayment();
+          return;
+        }
+        var profile = profiles[0];
+        if (profile.paid) {
+          showFiles();
+        } else if (profile.claimed_paid) {
+          showPending();
+        } else {
+          showPayment();
+        }
+      }).catch(function() {
+        showPayment();
+      });
+    }
+
+    function showPayment() {
+      showView(paymentView);
+      document.getElementById('payment-price').textContent = CONFIG.price;
+      document.getElementById('user-email').textContent = userEmail;
+      document.getElementById('pay-button').href = CONFIG.stripePaymentLink + '?prefilled_email=' + encodeURIComponent(userEmail);
+    }
+
+    function showPending() {
+      showView(pendingView);
+    }
+
+    function showFiles() {
+      showView(filesView);
+      document.getElementById('user-email').textContent = userEmail;
+      loadFiles();
+    }
+
+    function loadFiles() {
+      document.getElementById('files-loading').style.display = 'block';
+      document.getElementById('files-empty').style.display = 'none';
+      document.getElementById('files-content').style.display = 'none';
+
+      fetch(CONFIG.supabaseUrl + '/storage/v1/object/list/' + CONFIG.bucket, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.supabaseAnonKey,
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({prefix: userEmail + '/', limit: 100})
+      }).then(function(res) {
+        if (res.status === 401) {
+          sessionStorage.removeItem('supabase_token');
+          sessionStorage.removeItem('supabase_user_id');
+          sessionStorage.removeItem('supabase_email');
+          showView(authView);
+          showAuth('login');
+          var errEl = document.getElementById('login-error');
+          errEl.textContent = 'Session expired, sign in again.';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (!res.ok) throw new Error('Failed to load files');
+        return res.json();
+      }).then(function(files) {
+        document.getElementById('files-loading').style.display = 'none';
+        if (!files || files.length === 0) {
+          document.getElementById('files-empty').style.display = 'block';
+          return;
+        }
+        document.getElementById('files-content').style.display = 'block';
+        var fileMap = {};
+        files.forEach(function(f) { fileMap[f.name] = f; });
+
+        var known = ['PROSPECTING-PLAYBOOK.md', 'SWIPE-FILE.md', 'PROSPECTS.md'];
+        known.forEach(function(name) {
+          if (fileMap[name] || fileMap[userEmail + '/' + name]) {
+            loadDocContents(name);
+          }
+        });
+      }).catch(function() {
+        document.getElementById('files-loading').style.display = 'none';
+        document.getElementById('files-empty').style.display = 'block';
+      });
+    }
+
+    function loadDocContents(filename) {
+      var contentId = filename === 'PROSPECTING-PLAYBOOK.md' ? 'playbook-content' :
+                       filename === 'SWIPE-FILE.md' ? 'swipe-content' : 'prospects-content';
+      var downloadId = filename === 'PROSPECTING-PLAYBOOK.md' ? 'download-playbook' :
+                        filename === 'SWIPE-FILE.md' ? 'download-swipe' : 'download-prospects';
+
+      fetch(CONFIG.supabaseUrl + '/storage/v1/object/authenticated/' + CONFIG.bucket + '/' + userEmail + '/' + filename, {
+        headers: {
+          'apikey': CONFIG.supabaseAnonKey,
+          'Authorization': 'Bearer ' + token
+        }
+      }).then(function(res) {
+        if (res.ok) return res.text();
+        throw new Error('Failed to load ' + filename);
+      }).then(function(text) {
+        document.getElementById(contentId).innerHTML = marked.parse(text);
+        var blob = new Blob([text], {type: 'text/markdown'});
+        var url = URL.createObjectURL(blob);
+        document.getElementById(downloadId).href = url;
+        document.getElementById(downloadId).download = filename;
+      }).catch(function() {
+        document.getElementById(contentId).innerHTML = '<p>Failed to load this document.</p>';
+      });
+    }
+
+    document.getElementById('tab-login').addEventListener('click', function(e) {
+      e.preventDefault();
+      showAuth('login');
+    });
+
+    document.getElementById('tab-signup').addEventListener('click', function(e) {
+      e.preventDefault();
+      showAuth('signup');
+    });
+
+    document.getElementById('back-to-login').addEventListener('click', function(e) {
+      e.preventDefault();
+      showAuth('login');
+    });
+
+    document.getElementById('forgot-password-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      showView(authView);
+      authView.style.display = 'block';
+      document.getElementById('tab-bar').style.display = 'none';
+      document.getElementById('login-form-wrapper').style.display = 'none';
+      document.getElementById('signup-form-wrapper').style.display = 'none';
+      document.getElementById('reset-form-wrapper').style.display = 'none';
+      document.getElementById('auth-success').style.display = 'none';
+      document.getElementById('forgot-form-wrapper').style.display = 'block';
+    });
+
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var email = document.getElementById('login-email').value.trim().toLowerCase();
+      var password = document.getElementById('login-password').value;
+      var btn = document.getElementById('login-btn');
+      var errEl = document.getElementById('login-error');
+
+      errEl.style.display = 'none';
+      btn.disabled = true;
+
+      fetch(CONFIG.supabaseUrl + '/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.supabaseAnonKey
+        },
+        body: JSON.stringify({email: email, password: password})
+      }).then(function(res) {
+        return res.json().then(function(data) {
+          return {ok: res.ok, data: data};
+        });
+      }).then(function(result) {
+        btn.disabled = false;
+        if (result.ok && result.data.access_token) {
+          token = result.data.access_token;
+          var payload = decodeJwt(token);
+          userId = payload.sub;
+          userEmail = payload.email;
+          sessionStorage.setItem('supabase_token', token);
+          sessionStorage.setItem('supabase_user_id', userId);
+          sessionStorage.setItem('supabase_email', userEmail);
+          claimPaidIfNeeded().then(resolveAndShow);
+        } else {
+          errEl.textContent = result.data.msg || 'Wrong email or password.';
+          errEl.style.display = 'block';
+        }
+      }).catch(function() {
+        btn.disabled = false;
+        errEl.textContent = 'Something went wrong. Email us at ' + CONFIG.contactEmail + ' and we will help.';
+        errEl.style.display = 'block';
+      });
+    });
+
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var email = document.getElementById('signup-email').value.trim().toLowerCase();
+      var password = document.getElementById('signup-password').value;
+      var btn = document.getElementById('signup-btn');
+      var errEl = document.getElementById('signup-error');
+
+      errEl.style.display = 'none';
+      btn.disabled = true;
+
+      fetch(CONFIG.supabaseUrl + '/auth/v1/signup?redirect_to=' + encodeURIComponent(location.origin + '/account.html'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.supabaseAnonKey
+        },
+        body: JSON.stringify({email: email, password: password})
+      }).then(function(res) {
+        return res.json().then(function(data) {
+          return {ok: res.ok, data: data};
+        });
+      }).then(function(result) {
+        btn.disabled = false;
+        if (result.ok) {
+          showView(authView);
+          authView.style.display = 'block';
+          document.getElementById('tab-bar').style.display = 'none';
+          document.getElementById('signup-form-wrapper').style.display = 'none';
+          document.getElementById('auth-success').style.display = 'block';
+          document.getElementById('auth-success-text').textContent = 'Check your email to confirm your account.';
+        } else {
+          errEl.textContent = result.data.msg || 'Could not create account. Email us at ' + CONFIG.contactEmail + ' if the problem persists.';
+          errEl.style.display = 'block';
+        }
+      }).catch(function() {
+        btn.disabled = false;
+        errEl.textContent = 'Something went wrong. Email us at ' + CONFIG.contactEmail + ' and we will help.';
+        errEl.style.display = 'block';
+      });
+    });
+
+    document.getElementById('forgot-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var email = document.getElementById('forgot-email').value.trim().toLowerCase();
+      var btn = document.getElementById('forgot-btn');
+      var errEl = document.getElementById('forgot-error');
+
+      errEl.style.display = 'none';
+      btn.disabled = true;
+
+      fetch(CONFIG.supabaseUrl + '/auth/v1/recover?redirect_to=' + encodeURIComponent(location.origin + '/account.html'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.supabaseAnonKey
+        },
+        body: JSON.stringify({email: email})
+      }).then(function(res) {
+        btn.disabled = false;
+        if (res.ok) {
+          showView(authView);
+          authView.style.display = 'block';
+          document.getElementById('tab-bar').style.display = 'none';
+          document.getElementById('forgot-form-wrapper').style.display = 'none';
+          document.getElementById('auth-success').style.display = 'block';
+          document.getElementById('auth-success-text').textContent = 'Check your email for a reset link.';
+        } else {
+          errEl.textContent = 'Could not send reset link. Email us at ' + CONFIG.contactEmail + ' and we will help.';
+          errEl.style.display = 'block';
+        }
+      }).catch(function() {
+        btn.disabled = false;
+        errEl.textContent = 'Something went wrong. Email us at ' + CONFIG.contactEmail + ' and we will help.';
+        errEl.style.display = 'block';
+      });
+    });
+
+    document.getElementById('reset-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var password = document.getElementById('reset-password').value;
+      var btn = document.getElementById('reset-btn');
+      var errEl = document.getElementById('reset-error');
+      var recoveryToken = sessionStorage.getItem('supabase_recovery_token');
+
+      if (!recoveryToken) {
+        errEl.textContent = 'Session expired. Please request a new reset link.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      errEl.style.display = 'none';
+      btn.disabled = true;
+
+      fetch(CONFIG.supabaseUrl + '/auth/v1/user', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': CONFIG.supabaseAnonKey,
+          'Authorization': 'Bearer ' + recoveryToken
+        },
+        body: JSON.stringify({password: password})
+      }).then(function(res) {
+        return res.json().then(function(data) {
+          return {ok: res.ok, data: data};
+        });
+      }).then(function(result) {
+        // ponytail: PUT /auth/v1/user returns the user, not a session; the
+        // recovery token IS a valid access token, so keep using it.
+        if (result.ok) {
+          sessionStorage.removeItem('supabase_recovery_token');
+          token = recoveryToken;
+          var payload = decodeJwt(token);
+          userId = payload.sub;
+          userEmail = payload.email;
+          sessionStorage.setItem('supabase_token', token);
+          sessionStorage.setItem('supabase_user_id', userId);
+          sessionStorage.setItem('supabase_email', userEmail);
+          claimPaidIfNeeded().then(resolveAndShow);
+        } else {
+          btn.disabled = false;
+          errEl.textContent = result.data.msg || 'Could not reset password. Please try again.';
+          errEl.style.display = 'block';
+        }
+      }).catch(function() {
+        btn.disabled = false;
+        errEl.textContent = 'Something went wrong. Please try again.';
+        errEl.style.display = 'block';
+      });
+    });
+
+    document.getElementById('sign-out-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      sessionStorage.removeItem('supabase_token');
+      sessionStorage.removeItem('supabase_user_id');
+      sessionStorage.removeItem('supabase_email');
+      sessionStorage.removeItem('supabase_recovery_token');
+      location.reload();
+    });
+
+    stashPaidRedirect();
+    if (handleHashToken() === 'recovery') {
+      // reset-password form is showing; wait for the user
+    } else if (token && userId) {
+      claimPaidIfNeeded().then(resolveAndShow);
+    } else {
+      showView(authView);
+      showAuth('login');
+      if (sessionStorage.getItem('pending_paid_claim') === '1') {
+        document.getElementById('auth-note-text').textContent = 'Log in to finish setting up your package.';
+        document.getElementById('auth-note').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

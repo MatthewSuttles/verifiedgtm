@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intake Form — Verified GTM Playbooks</title>
+  <meta name="description" content="Tell us about your app so we can build your verified go-to-market package.">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+</head>
+<body class="app">
+  <header class="hero">
+    <h1>Your GTM Package</h1>
+    <p>Answer these questions so we can build something actually useful. Takes about 10 minutes.</p>
+  </header>
+
+  <main>
+    <form id="intake-form">
+      <h2>About your app</h2>
+
+      <div class="form-group">
+        <label for="app-name">App name *</label>
+        <input type="text" id="app-name" name="app_name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="app-url">App URL *</label>
+        <input type="url" id="app-url" name="app_url" placeholder="https://" required>
+      </div>
+
+      <div class="form-group">
+        <label for="pitch">One-line pitch *</label>
+        <input type="text" id="pitch" name="pitch" placeholder="What does your app do, in one sentence." required>
+        <p class="hint">This is what we will use in the prospect sheet as the "solution" framing.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="surface">Home surface *</label>
+        <select id="surface" name="surface" required>
+          <option value="">Select one</option>
+          <option value="web">Web app</option>
+          <option value="slack">Slack</option>
+          <option value="cli">CLI</option>
+          <option value="mobile">Mobile</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <hr>
+
+      <h2>Your differentiators</h2>
+      <p>What makes your app worth switching to or trying? These are what outreach leans on. Be specific.</p>
+
+      <div class="form-group">
+        <label for="differentiators">2-4 differentiators *</label>
+        <textarea id="differentiators" name="differentiators" required placeholder="Example:
+- Pricing: $29/mo vs $149/mo for the main competitor
+- Focus: We do X really well, competitors do Y and Z
+- Integration: Native Slack + GitHub, competitors are standalone
+- Onboarding: 5-minute setup, competitors take 2 hours"></textarea>
+        <p class="hint">Be specific. Vague differentiators do not survive first contact with a prospect.</p>
+      </div>
+
+      <hr>
+
+      <h2>Competitors</h2>
+      <p>Include any competitor you have looked at, even if you decided not to use them. Include old or renamed domains if you know them.</p>
+
+      <div class="form-group">
+        <label for="competitors">Competitors (names AND domains) *</label>
+        <textarea id="competitors" name="competitors" required placeholder="Example:
+- CompetitorA (competitor-a.com)
+- CompetitorB, formerly OtherName (othername.com)
+- CompetitorC (competitor-c.io)"></textarea>
+        <p class="hint">We check review sites per domain. Inactive domains still surface in older reviews.</p>
+      </div>
+
+      <hr>
+
+      <h2>Target customer</h2>
+
+      <div class="form-group">
+        <label for="icp-roles">ICP roles *</label>
+        <input type="text" id="icp-roles" name="icp_roles" required placeholder="Example: Head of RevOps at B2B SaaS, 50-200 employees">
+      </div>
+
+      <div class="form-group">
+        <label for="icp-size">Company size *</label>
+        <input type="text" id="icp-size" name="icp_size" required placeholder="Example: 20-100 employees, Series A-B, $1M-$10M ARR">
+      </div>
+
+      <hr>
+
+      <h2>Avoids</h2>
+
+      <div class="form-group">
+        <label for="avoids">Anything to avoid?</label>
+        <textarea id="avoids" name="avoids" placeholder="Examples:
+- Do not mention CompetitorX (we have a partnership)
+- Avoid mentioning us in r/SomeCommunity (they are hostile to vendors)
+- Do not mention our pricing publicly"></textarea>
+        <p class="hint">Optional. If there are landmines in your market, tell us now.</p>
+      </div>
+
+      <hr>
+
+      <h2>Order matching</h2>
+
+      <div class="form-group">
+        <label for="stripe-email">Stripe receipt email *</label>
+        <input type="email" id="stripe-email" name="stripe_email" required placeholder="The email you used for the $99 purchase">
+        <p class="hint">We match your intake form to your payment by email. This is not for marketing.</p>
+      </div>
+
+      <div id="form-error" style="color: #cc4444; margin-bottom: 1rem; display: none;"></div>
+
+      <div class="form-group">
+        <button type="submit" id="submit-btn">Submit Intake Form</button>
+      </div>
+
+      <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 1.5rem;">
+        Your information is never shared with third parties. We use it only to build your GTM package.
+      </p>
+    </form>
+
+    <div id="success-message" style="display: none; text-align: center; padding: 3rem 0;">
+      <h2>Got it.</h2>
+      <p>Your package will be ready within 48 hours. Sign in at the customer area with this email to pick it up; we will email you when it is live.</p>
+    </div>
+  </main>
+
+    <footer>
+      <p>Questions? <a href="#" id="footer-email"></a></p>
+    </footer>
+
+    <script>
+      document.getElementById('footer-email').href = 'mailto:' + CONFIG.contactEmail;
+      document.getElementById('footer-email').textContent = CONFIG.contactEmail;
+
+      var storedEmail = sessionStorage.getItem('supabase_email');
+      if (storedEmail) {
+        var stripeEmailField = document.getElementById('stripe-email');
+        stripeEmailField.value = storedEmail;
+        stripeEmailField.readOnly = true;
+      }
+
+    document.getElementById('intake-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var form = e.target;
+      var submitBtn = document.getElementById('submit-btn');
+      var errorDiv = document.getElementById('form-error');
+
+      errorDiv.style.display = 'none';
+      submitBtn.disabled = true;
+
+      var payload = Object.fromEntries(new FormData(form));
+
+      fetch(CONFIG.supabaseUrl + "/rest/v1/intake", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": CONFIG.supabaseAnonKey,
+          "Authorization": "Bearer " + CONFIG.supabaseAnonKey,
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify(payload)
+      }).then(function(res) {
+        if (res.ok) {
+          form.style.display = 'none';
+          document.getElementById('success-message').style.display = 'block';
+        } else {
+          errorDiv.textContent = 'Something went wrong. Email us at ' + CONFIG.contactEmail + ' and we will take your intake by email.';
+          errorDiv.style.display = 'block';
+          submitBtn.disabled = false;
+        }
+      }).catch(function() {
+        errorDiv.textContent = 'Something went wrong. Email us at ' + CONFIG.contactEmail + ' and we will take your intake by email.';
+        errorDiv.style.display = 'block';
+        submitBtn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
