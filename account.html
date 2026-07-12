@@ -37,6 +37,10 @@
           <div class="form-group">
             <button type="submit" id="login-btn">Log in</button>
           </div>
+          <div style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin: 1rem 0;">or</div>
+          <div class="form-group">
+            <button type="button" id="google-login-btn" class="btn btn-ghost">Continue with Google</button>
+          </div>
           <p style="text-align: center; font-size: 0.9rem;">
             <a href="#" id="forgot-password-link">Forgot password?</a>
           </p>
@@ -56,6 +60,10 @@
           <div id="signup-error" style="color: #cc4444; margin-bottom: 1rem; display: none;"></div>
           <div class="form-group">
             <button type="submit" id="signup-btn">Create account</button>
+          </div>
+          <div style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin: 1rem 0;">or</div>
+          <div class="form-group">
+            <button type="button" id="google-signup-btn" class="btn btn-ghost">Continue with Google</button>
           </div>
         </form>
       </div>
@@ -249,6 +257,65 @@
       return 'signed-in';
     }
 
+    function continueWithGoogle() {
+      window.location.href = CONFIG.supabaseUrl + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin + window.location.pathname);
+    }
+
+    // Handles the redirect back from Google. GoTrue never sets type=recovery
+    // here, so that hash shape is left for handleHashToken to pick up untouched.
+    // ponytail: no refresh_token/expires_in storage, matches this app's
+    // existing sessionStorage shape which never persists a refresh token.
+    function handleGoogleCallback() {
+      var params = parseHashParams();
+      if (params.type === 'recovery') return false;
+
+      if (params.error) {
+        history.replaceState(null, '', location.pathname + location.search);
+        showAuth('login');
+        var errEl = document.getElementById('login-error');
+        errEl.textContent = params.error_description || 'Could not sign in with Google.';
+        errEl.style.display = 'block';
+        return true;
+      }
+
+      if (!params.access_token) return false;
+
+      history.replaceState(null, '', location.pathname + location.search);
+
+      fetch(CONFIG.supabaseUrl + '/auth/v1/user', {
+        headers: {
+          'apikey': CONFIG.supabaseAnonKey,
+          'Authorization': 'Bearer ' + params.access_token
+        }
+      }).then(function(res) {
+        return res.json().then(function(data) {
+          return {ok: res.ok, data: data};
+        });
+      }).then(function(result) {
+        if (result.ok && result.data.email) {
+          token = params.access_token;
+          userId = result.data.id;
+          userEmail = result.data.email.toLowerCase();
+          sessionStorage.setItem('supabase_token', token);
+          sessionStorage.setItem('supabase_user_id', userId);
+          sessionStorage.setItem('supabase_email', userEmail);
+          claimPaidIfNeeded().then(resolveAndShow);
+        } else {
+          showAuth('login');
+          var errEl = document.getElementById('login-error');
+          errEl.textContent = 'Could not sign in with Google. Email us at ' + CONFIG.contactEmail + ' and we will help.';
+          errEl.style.display = 'block';
+        }
+      }).catch(function() {
+        showAuth('login');
+        var errEl = document.getElementById('login-error');
+        errEl.textContent = 'Something went wrong. Email us at ' + CONFIG.contactEmail + ' and we will help.';
+        errEl.style.display = 'block';
+      });
+
+      return true;
+    }
+
     // ponytail: ?paid=1 is stashed so a claim survives logging in later or
     // on another device; the PATCH must land before the profile is read.
     function stashPaidRedirect() {
@@ -423,6 +490,9 @@
       e.preventDefault();
       showAuth('login');
     });
+
+    document.getElementById('google-login-btn').addEventListener('click', continueWithGoogle);
+    document.getElementById('google-signup-btn').addEventListener('click', continueWithGoogle);
 
     document.getElementById('forgot-password-link').addEventListener('click', function(e) {
       e.preventDefault();
@@ -619,7 +689,9 @@
     });
 
     stashPaidRedirect();
-    if (handleHashToken() === 'recovery') {
+    if (handleGoogleCallback()) {
+      // error shown above, or sign-in is resolving asynchronously
+    } else if (handleHashToken() === 'recovery') {
       // reset-password form is showing; wait for the user
     } else if (token && userId) {
       claimPaidIfNeeded().then(resolveAndShow);
