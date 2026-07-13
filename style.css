@@ -325,6 +325,8 @@ button[type="submit"]:disabled {
 .browser-body {
   padding: 1.75rem 2rem;
   font-size: 0.93rem;
+  max-height: 440px;
+  overflow-y: auto;
 }
 
 .browser-body blockquote {

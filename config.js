@@ -4,5 +4,5 @@ const CONFIG = {
   supabaseUrl: "https://YOUR-PROJECT.supabase.co",
   supabaseAnonKey: "your_anon_key_here",
   bucket: "deliveries",
-  contactEmail: "hello@yourdomain.com"
+  contactEmail: "support@verifiedgtm.com"
 };
