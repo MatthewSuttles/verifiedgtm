@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://verifiedgtm-9e7vr.ondigitalocean.app/sitemap.xml
